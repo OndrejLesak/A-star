@@ -36,7 +36,7 @@ def heuristics_two(initial, target):
         for x in range(n):
             if initial[y][x] == 0:
                 continue
-            if initial[y][x] != target[x][y]:
+            if initial[y][x] != target[y][x]:
                 posY, posX = np.where(target == initial[y][x])
                 cnt += abs(x - int(posX)) + abs(y - int(posY))
     return cnt
