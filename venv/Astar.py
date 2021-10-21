@@ -19,10 +19,12 @@ targetMat = np.array([[1, 2, 3],
 def heuristics_one(initial, target):
     m, n = initial.shape # shape
     cnt = 0
+
     for y in range(n): # y-axis
         for x in range(m): # x-axis
             if target[y][x] == 0:
                 continue
+
             if initial[y][x] != target[y][x]:
                 cnt += 1
 
@@ -30,15 +32,18 @@ def heuristics_one(initial, target):
 
 
 def heuristics_two(initial, target):
-    m, n = initial.shape
+    m, n = initial.shape # shape
     cnt = 0
-    for y in range(m):
-        for x in range(n):
+
+    for y in range(m): # y-axis
+        for x in range(n): # x-axis
             if initial[y][x] == 0:
                 continue
+
             if initial[y][x] != target[y][x]:
-                posY, posX = np.where(target == initial[y][x])
-                cnt += abs(x - int(posX)) + abs(y - int(posY))
+                posY, posX = np.where(target == initial[y][x]) # fix y and x positions of the item in target matrix
+                cnt += abs(x - int(posX)) + abs(y - int(posY)) # calculate the difference of the positions
+
     return cnt
 
 
