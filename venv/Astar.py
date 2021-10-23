@@ -3,9 +3,9 @@ import heapq as hq
 import copy
 import time as t
 
-heuristics = 2
-
-
+heuristics = 1 # heuristics
+totalNodes = 0
+analyzedNodes = 0
 
 class Node():
     def __init__(self, value, distance, anc, state, move):
@@ -16,28 +16,22 @@ class Node():
         self.move = move
         self.state = state
 
-    def __lt__(self, other):
+    def __lt__(self, other): # heapq requirement
         if self.combo == other.combo:
             return self.value < other.value
         else:
             return self.combo < other.combo
 
 
-initialMat = np.array([[1, 2, 3],
-                      [4, 5, 6],
-                      [7, 0, 8]])
-
-targetMat = np.array([[8, 0, 6],
-                      [5, 4, 7],
-                     [2, 3, 1]])
+initialMat = np.array([[3, 2, 5, 0], [7, 6, 1, 4]])
+targetMat = np.array([[0, 1, 2, 3], [4, 5, 6, 7]])
 
 
-def recognizeHeur(initial, target):
+def recognizeHeur(initial, target): # a function to choose the right heuristic function
     if heuristics == 1:
         return heuristics_one(initial, target)
     elif heuristics == 2:
         return heuristics_two(initial, target)
-
     return None
 
 
@@ -72,31 +66,33 @@ def heuristics_two(initial, target):
     return cnt
 
 
-def up(state, x, y):
+def up(state, x, y): # swap up
     matrix = copy.deepcopy(state)
     matrix[y][x], matrix[y-1][x] = matrix[y-1][x], matrix[y][x]
     return matrix
 
 
-def down(state, x, y):
+def down(state, x, y): # swap down
     matrix = copy.deepcopy(state)
     matrix[y][x], matrix[y+1][x] = matrix[y+1][x], matrix[y][x]
     return matrix
 
 
-def left(state, x, y):
+def left(state, x, y): # swap left
     matrix = copy.deepcopy(state)
     matrix[y][x], matrix[y][x-1] = matrix[y][x-1], matrix[y][x]
     return matrix
 
 
-def right(state, x, y):
+def right(state, x, y): # swap right
     matrix = copy.deepcopy(state)
     matrix[y][x], matrix[y][x+1] = matrix[y][x+1], matrix[y][x]
     return matrix
 
 
 def aStar(initial, target):
+    global totalNodes, analyzedNodes
+
     minHeap = [] # states
     created = {} # generated states
     initNode = Node(recognizeHeur(initial, target), 0, None, initial, None)
@@ -107,32 +103,40 @@ def aStar(initial, target):
         posY, posX = np.where(initNode.state == 0)
 
         if posY - 1 >= 0: # up
-            modState = up(initNode.state, int(posX), int(posY))
+            modState = up(initNode.state, int(posX), int(posY)) # create new state
+            totalNodes += 1
             if created.get(str(modState)) is None:
                 created[str(modState)] = True
                 node = Node(recognizeHeur(modState, target), initNode.distance + 1, initNode, modState, 'UP')
                 hq.heappush(minHeap, node)
+                analyzedNodes += 1
 
         if posY + 1 < m: # down
-            modState = down(initNode.state, int(posX), int(posY))
+            modState = down(initNode.state, int(posX), int(posY)) # create new state
+            totalNodes += 1
             if created.get(str(modState)) is None:
                 created[str(modState)] = True
                 node = Node(recognizeHeur(modState, target), initNode.distance + 1, initNode, modState, 'DOWN')
                 hq.heappush(minHeap, node)
+                analyzedNodes += 1
 
         if posX - 1 >= 0: # left
-            modState = left(initNode.state, int(posX), int(posY))
+            modState = left(initNode.state, int(posX), int(posY)) # create new state
+            totalNodes += 1
             if created.get(str(modState)) is None:
                 created[str(modState)] = True
                 node = Node(recognizeHeur(modState, target), initNode.distance + 1, initNode, modState, 'LEFT')
                 hq.heappush(minHeap, node)
+                analyzedNodes += 1
 
         if posX + 1 < n: # right
-            modState = right(initNode.state, int(posX), int(posY))
+            modState = right(initNode.state, int(posX), int(posY)) # create new state
+            totalNodes += 1
             if created.get(str(modState)) is None:
                 created[str(modState)] = True
                 node = Node(recognizeHeur(modState, target), initNode.distance + 1, initNode, modState, 'RIGHT')
                 hq.heappush(minHeap, node)
+                analyzedNodes += 1
 
         initNode = hq.heappop(minHeap)
     return initNode
@@ -142,15 +146,17 @@ def printTrace(node: Node): # print the trace of the algorithm
     if node.ancestor is None:
         return
     printTrace(node.ancestor)
-    print(node.move)
+    print('\n', node.move, sep='') # print moves
+    print(node.state) # print state matrices
 
 
 def main():
-    t1 = t.time()
+    t_start = t.time()
     output = aStar(initialMat, targetMat)
-    t2 = t.time()
+    t_end = t.time()
 
-    print(t2 - t1)
+    printTrace(output)
+    print(f'\nTime needed to generate {totalNodes} nodes and analyze {analyzedNodes} out of them: {round(t_end - t_start, 5)}s with final depth: {output.distance}')
 
 if __name__ == '__main__':
     main()
