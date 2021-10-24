@@ -3,7 +3,7 @@ import heapq as hq
 import copy
 import time as t
 
-heuristics = 1 # heuristics
+heuristics = 2 # heuristics
 totalNodes = 0
 analyzedNodes = 0
 
@@ -23,8 +23,8 @@ class Node():
             return self.combo < other.combo
 
 
-initialMat = np.array([[3, 2, 5, 0], [7, 6, 1, 4]])
-targetMat = np.array([[0, 1, 2, 3], [4, 5, 6, 7]])
+initialMat = np.array([[1, 2, 3], [4, 5, 6], [7, 0, 8]])
+targetMat = np.array([[1, 2, 3], [4, 5, 6], [7, 8, 0]])
 
 
 def recognizeHeur(initial, target): # a function to choose the right heuristic function
@@ -138,7 +138,12 @@ def aStar(initial, target):
                 hq.heappush(minHeap, node)
                 analyzedNodes += 1
 
-        initNode = hq.heappop(minHeap)
+        try:
+            initNode = hq.heappop(minHeap)
+        except IndexError:
+            print('Zadaný problém nemá riešenie')
+            initNode = None
+            exit(0)
     return initNode
 
 
